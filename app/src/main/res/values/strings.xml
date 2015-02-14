@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">OrCamo</string>
+    <string name="orcamoaccessibilityservice_name">OrCamo</string>
+    <string name="orcamoaccessibilityservice_description">
+        Allow OrCamo to listen for window changes so that certain messenger features can be detected
+        and camouflaged
+    </string>
+</resources>
