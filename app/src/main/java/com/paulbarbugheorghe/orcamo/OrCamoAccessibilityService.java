@@ -2,6 +2,7 @@ package com.paulbarbugheorghe.orcamo;
 
 import android.accessibilityservice.AccessibilityService;
 import android.content.Intent;
+import android.graphics.Rect;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
@@ -9,11 +10,11 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import java.util.List;
 
 public class OrCamoAccessibilityService extends AccessibilityService {
+    public final static String EXTRA_POS = "com.paulbarbugheorghe.orcamo.POS";
     private static final String TAG = "OrCamoAccessibilityService";
-    private static final String TEXT_LINE_CLASS_NAME = "android.widget.ImageButton";
-    private static final String TEXT_LINE_DESC = "Write a message";
+    private static final String ELEM_CLASS_NAME = "android.widget.ImageButton";
+    private static final String ELEM_DESC = "Like";
     private boolean isOrcaActive = false;
-    private boolean isTextLineSelected = false;
     private boolean isCamouflageServiceRunning = false;
 
     private void toggleService(AccessibilityEvent event)
@@ -30,57 +31,48 @@ public class OrCamoAccessibilityService extends AccessibilityService {
 
         //TODO: recycle
 
-        List<AccessibilityNodeInfo> nodes = src.findAccessibilityNodeInfosByText(TEXT_LINE_DESC);
+        List<AccessibilityNodeInfo> nodes = src.findAccessibilityNodeInfosByText(ELEM_DESC);
         Log.d(TAG, "Found (" + nodes.size() + "): " + nodes.toString());
 
         if(nodes.size() < 1)
         {
-            Log.w(TAG, "Cannot find a node by text (" + TEXT_LINE_DESC + ") in the window");
-            // necessary workaround for when the text line gets selected and the keyboard appears
-            // when the keyboard appears the window content is modified, hence a new accessibility
-            // event is fired and this method won't find the line then, but previously it was selected,
-            // so this keeps the camouflage service running
-            if (!isTextLineSelected) {
-                //TODO: BUG: Open chat - select the textinput - go back to contact list, service is still running (bug)
-                stopService();
-            }
+            Log.w(TAG, "Cannot find a node by text (" + ELEM_DESC + ") in the window");
+            stopService();
             return;
         }
 
-        AccessibilityNodeInfo textLine = null;
+        AccessibilityNodeInfo thumbsUp = null;
         for (AccessibilityNodeInfo node : nodes)
         {
-            if(TEXT_LINE_CLASS_NAME.equals(node.getClassName()))
+            if(ELEM_CLASS_NAME.equals(node.getClassName()))
             {
-                textLine = node;
+                thumbsUp = node;
                 //TODO: what if there are multiple nodes that have the class? - I currently look only at the first
                 break;
             }
         }
 
-        if(null == textLine) {
-            Log.d(TAG, "Cannot find the node by class (" + TEXT_LINE_CLASS_NAME + ")");
-
-            // necessary workaround for when the text line gets selected and the keyboard appears
-            // when the keyboard appears the window content is modified, hence a new accessibility
-            // event is fired and this method won't find the line then, but previously it was selected,
-            // so this keeps the camouflage service running
-            if (!isTextLineSelected)
-            {
-                stopService();
-            }
+        if(null == thumbsUp) {
+            Log.d(TAG, "Cannot find the node by class (" + ELEM_CLASS_NAME + ")");
+            stopService();
             return;
         }
 
-        Log.d(TAG, "text line is selected: " + textLine.isSelected());
-        isTextLineSelected = textLine.isSelected();
+        Rect bounds = new Rect();
+        thumbsUp.getBoundsInScreen(bounds);
+        Log.d(TAG, "Thumbsup - bounds in screen: left=" + bounds.left + " top=" + bounds.top +
+                " right=" + bounds.right + " bot=" + bounds.bottom);
 
         if(isCamouflageServiceRunning) {
             Log.d("AccService", "Camouflage service already running");
-            return;
+
+            stopService(); // because the position may change if the keyboard is shown/hidden
         }
 
         Intent intent = new Intent(this, OrCamoService.class);
+
+        int[] pos = {bounds.left, bounds.top, bounds.right, bounds.bottom};
+        intent.putExtra(EXTRA_POS, pos);
 
         //TODO: position the overlay properly
         Log.d(TAG, "Starting window service");

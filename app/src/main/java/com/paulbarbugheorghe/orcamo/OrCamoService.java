@@ -15,6 +15,7 @@ public class OrCamoService extends Service {
 
     private WindowManager wm;
     private ImageView image;
+    private int x, y, w, h;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -22,26 +23,42 @@ public class OrCamoService extends Service {
     }
 
     @Override
-    public void onCreate(){
-        super.onCreate();
-        Log.d(TAG, "Service created!");
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        int[] pos = intent.getIntArrayExtra(OrCamoAccessibilityService.EXTRA_POS);
+
+        Log.d(TAG, "POS: left=" + pos[0] + " top=" + pos[1] +
+                " right=" + pos[2] + " bot=" + pos[3]);
+
+        x = pos[0]; // left
+        y = pos[1]; // top
+        w = 20;
+        h = 20;
+
+
+        Log.d(TAG, "Service started!");
         wm = (WindowManager) getSystemService(WINDOW_SERVICE);
 
         image = new ImageView(this);
-        image.setImageResource(R.drawable.ic_launcher); //TODO: change this
+        image.setImageResource(R.drawable.ic_launcher); //TODO: change this and remove the original one
 
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-                PixelFormat.TRANSLUCENT
+                PixelFormat.OPAQUE
         );
 
-        params.x = 0;
-        params.y = 0;
+        params.x = x;
+        params.y = y;
+        params.gravity = Gravity.TOP | Gravity.LEFT;
+        params.height = h;
+        params.width = w;
+
 
         wm.addView(image, params);
+
+        return super.onStartCommand(intent, flags, startId);
     }
 
     @Override
