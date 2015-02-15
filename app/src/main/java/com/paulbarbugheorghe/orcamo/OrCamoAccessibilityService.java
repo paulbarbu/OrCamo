@@ -18,7 +18,7 @@ public class OrCamoAccessibilityService extends AccessibilityService {
     private boolean isCamouflageServiceRunning = false;
     private int[] lastPos = {-1, -1, -1, -1}; // last position of the like button
 
-    private void toggleService(AccessibilityEvent event)
+    private void toggleCamouflage(AccessibilityEvent event)
     {
         Log.d(TAG, "pkg=" + event.getPackageName() + " winid="+event.getWindowId());
         Log.d(TAG, "type: " + event.eventTypeToString(event.getEventType()));
@@ -42,7 +42,7 @@ public class OrCamoAccessibilityService extends AccessibilityService {
         if(nodes.size() < 1)
         {
             Log.w(TAG, "Cannot find a node by text (" + ELEM_DESC + ") in the window");
-            stopService();
+            stopCamouflage();
             return;
         }
 
@@ -59,7 +59,7 @@ public class OrCamoAccessibilityService extends AccessibilityService {
 
         if(null == thumbsUp) {
             Log.d(TAG, "Cannot find the node by class (" + ELEM_CLASS_NAME + ")");
-            stopService();
+            stopCamouflage();
             return;
         }
 
@@ -78,7 +78,7 @@ public class OrCamoAccessibilityService extends AccessibilityService {
             }
             else {
                 // the position has changed, I have to stop the camouflage and restart it in a new position
-                stopService();
+                stopCamouflage();
             }
         }
 
@@ -106,13 +106,13 @@ public class OrCamoAccessibilityService extends AccessibilityService {
         return true;
     }
 
-    private void stopService()
+    private void stopCamouflage()
     {
         if(!isCamouflageServiceRunning) {
             Log.d(TAG, "Camouflage service already stopped");
             return;
         }
-        Log.d(TAG, "stopService()");
+        Log.d(TAG, "stopCamouflage()");
 
         Intent intent = new Intent(this, OrCamoService.class);
         Log.d(TAG, "Stopping window service");
@@ -123,6 +123,7 @@ public class OrCamoAccessibilityService extends AccessibilityService {
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
         String pkgName = event.getPackageName().toString();
+        
         if("com.paulbarbugheorghe.orcamo".equals(pkgName))
         {
             // if I wouldn't ignore self events I'd end up stopping myself
@@ -136,16 +137,16 @@ public class OrCamoAccessibilityService extends AccessibilityService {
 
             if("com.facebook.orca".equals(pkgName)) {
                 isOrcaActive = true;
-                toggleService(event);
+                toggleCamouflage(event);
             }
             else {
                 isOrcaActive = false;
-                stopService();
+                stopCamouflage();
             }
         }
         else if(isOrcaActive)
         {
-            toggleService(event);
+            toggleCamouflage(event);
         }
     }
 

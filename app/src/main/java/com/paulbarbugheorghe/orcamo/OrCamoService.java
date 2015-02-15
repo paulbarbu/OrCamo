@@ -53,8 +53,6 @@ public class OrCamoService extends Service {
 
         Log.d(TAG, "x=" + params.x + " y= " + params.y + " w=" + params.width + " h=" + params.height);
 
-        image.setPadding(0, 0, 0, 0);
-
         wm.addView(image, params);
 
         return super.onStartCommand(intent, flags, startId);
