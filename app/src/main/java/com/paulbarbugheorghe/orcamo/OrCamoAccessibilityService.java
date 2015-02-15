@@ -18,12 +18,17 @@ public class OrCamoAccessibilityService extends AccessibilityService {
     private boolean isCamouflageServiceRunning = false;
     private int[] lastPos = {-1, -1, -1, -1}; // last position of the like button
 
+    /**
+     * This will be called only when in messenger and its purpose is to start/stop the camouflage
+     * service depending on what it finds in the messenger window (the like button and its position)
+     */
     private void toggleCamouflage(AccessibilityEvent event)
     {
-        Log.d(TAG, "pkg=" + event.getPackageName() + " winid="+event.getWindowId());
-        Log.d(TAG, "type: " + event.eventTypeToString(event.getEventType()));
-
         int eventType = event.getEventType();
+
+        Log.d(TAG, "pkg=" + event.getPackageName() + " winid="+event.getWindowId());
+        Log.d(TAG, "type: " + event.eventTypeToString(eventType));
+
         // only handle the situation where the window is shown
         // or it is uncovered by the notification "bar"
         if(AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED != eventType &&
@@ -33,9 +38,6 @@ public class OrCamoAccessibilityService extends AccessibilityService {
         }
 
         AccessibilityNodeInfo src = event.getSource();
-
-        //TODO: recycle
-
         if(null == src) {
             Log.w(TAG, "src is null");
             stopCamouflage();
@@ -58,13 +60,14 @@ public class OrCamoAccessibilityService extends AccessibilityService {
             if(ELEM_CLASS_NAME.equals(node.getClassName()))
             {
                 thumbsUp = node;
-                //TODO: what if there are multiple nodes that have the class? - I currently look only at the first
+                //FIXME: what if there are multiple nodes that have the class? - I currently look only at the first
                 break;
             }
         }
 
         if(null == thumbsUp) {
             Log.d(TAG, "Cannot find the node by class (" + ELEM_CLASS_NAME + ")");
+            src.recycle();
             stopCamouflage();
             return;
         }
@@ -80,6 +83,7 @@ public class OrCamoAccessibilityService extends AccessibilityService {
 
             if(isSamePosition(pos)) {
                 Log.d(TAG, "Thumbs up is in the same position");
+                src.recycle();
                 return;
             }
             else {
@@ -96,6 +100,7 @@ public class OrCamoAccessibilityService extends AccessibilityService {
         Log.d(TAG, "Starting window service");
         startService(intent);
         isCamouflageServiceRunning = true;
+        src.recycle();
     }
 
     private boolean isSamePosition(int[] pos)

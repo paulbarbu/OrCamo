@@ -20,7 +20,6 @@ public class OrCamoService extends Service {
     public IBinder onBind(Intent intent) {
         return null;
     }
-    //TODO: orientation change with full screen keybd -> stop the service
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         int[] pos = intent.getIntArrayExtra(OrCamoAccessibilityService.EXTRA_POS);
@@ -32,12 +31,15 @@ public class OrCamoService extends Service {
         Log.d(TAG, "Service started!");
         wm = (WindowManager) getSystemService(WINDOW_SERVICE);
 
-        //TODO: I can click through it
         image = new ImageView(this);
         image.setImageResource(R.drawable.ic_launcher); //TODO: change this and remove the original one
 
-        // TODO: TYPE_PHONE doesn't allow me to display the camouflage when the messenger is started via a chat head
-        // TODO: TYPE_SYSTEM_OVERLAY allows the click to go to the like btn
+        /*
+         TODO: TYPE_PHONE doesn't allow me to display the camouflage when the messenger is started via a chat head
+         TYPE_SYSTEM_OVERLAY allows the click to go to the like btn - maybe I can fix this
+          OR
+         maybe I can use the winid, when it changes, restart the service!
+         */
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT,
