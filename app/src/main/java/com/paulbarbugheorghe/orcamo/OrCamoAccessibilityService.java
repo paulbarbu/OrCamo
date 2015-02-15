@@ -16,16 +16,21 @@ public class OrCamoAccessibilityService extends AccessibilityService {
     private static final String ELEM_DESC = "Like";
     private boolean isOrcaActive = false;
     private boolean isCamouflageServiceRunning = false;
+    private int[] lastPos = {-1, -1, -1, -1}; // last position of the like button
 
     private void toggleService(AccessibilityEvent event)
     {
-        if(AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED != event.getEventType())
+        Log.d(TAG, "pkg=" + event.getPackageName() + " winid="+event.getWindowId());
+        Log.d(TAG, "type: " + event.eventTypeToString(event.getEventType()));
+
+        int eventType = event.getEventType();
+        // only handle the situation where the window is shown
+        // or it is uncovered by the notification "bar"
+        if(AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED != eventType &&
+                AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED != eventType)
         {
             return;
         }
-
-        Log.d(TAG, "pkg=" + event.getPackageName() + " winid="+event.getWindowId());
-        Log.d(TAG, "type: " + Integer.toHexString(event.getEventType()));
 
         AccessibilityNodeInfo src = event.getSource();
 
@@ -60,24 +65,45 @@ public class OrCamoAccessibilityService extends AccessibilityService {
 
         Rect bounds = new Rect();
         thumbsUp.getBoundsInScreen(bounds);
-        Log.d(TAG, "Thumbsup - bounds in screen: left=" + bounds.left + " top=" + bounds.top +
+        Log.d(TAG, "Thumbs up - bounds in screen: left=" + bounds.left + " top=" + bounds.top +
                 " right=" + bounds.right + " bot=" + bounds.bottom);
+        int[] pos = {bounds.left, bounds.top, bounds.right, bounds.bottom};
 
         if(isCamouflageServiceRunning) {
-            Log.d("AccService", "Camouflage service already running");
+            Log.d(TAG, "Camouflage service already running");
 
-            stopService(); // because the position may change if the keyboard is shown/hidden
+            if(isSamePosition(pos)) {
+                Log.d(TAG, "Thumbs up is in the same position");
+                return;
+            }
+            else {
+                // the position has changed, I have to stop the camouflage and restart it in a new position
+                stopService();
+            }
         }
 
-        Intent intent = new Intent(this, OrCamoService.class);
+        lastPos = pos;
 
-        int[] pos = {bounds.left, bounds.top, bounds.right, bounds.bottom};
+        Intent intent = new Intent(this, OrCamoService.class);
         intent.putExtra(EXTRA_POS, pos);
 
         //TODO: position the overlay properly
         Log.d(TAG, "Starting window service");
         startService(intent);
         isCamouflageServiceRunning = true;
+    }
+
+    private boolean isSamePosition(int[] pos)
+    {
+        for(int i=0; i<4; ++i)
+        {
+            if(pos[i] != lastPos[i])
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private void stopService()
@@ -96,11 +122,19 @@ public class OrCamoAccessibilityService extends AccessibilityService {
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
+        String pkgName = event.getPackageName().toString();
+        if("com.paulbarbugheorghe.orcamo".equals(pkgName))
+        {
+            // if I wouldn't ignore self events I'd end up stopping myself
+            Log.d(TAG, "Event in self, ignoring");
+            return;
+        }
+
         if(event.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED)
         {
-            Log.d(TAG, "Window state changed: " + event.getPackageName());
+            Log.d(TAG, "Window state changed: " + pkgName);
 
-            if("com.facebook.orca".equals(event.getPackageName().toString())) {
+            if("com.facebook.orca".equals(pkgName)) {
                 isOrcaActive = true;
                 toggleService(event);
             }

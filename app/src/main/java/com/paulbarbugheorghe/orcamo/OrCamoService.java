@@ -15,13 +15,12 @@ public class OrCamoService extends Service {
 
     private WindowManager wm;
     private ImageView image;
-    private int x, y, w, h;
 
     @Override
     public IBinder onBind(Intent intent) {
         return null;
     }
-
+    //TODO: orientation change with full screen keybd -> stop the service
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         int[] pos = intent.getIntArrayExtra(OrCamoAccessibilityService.EXTRA_POS);
@@ -29,32 +28,32 @@ public class OrCamoService extends Service {
         Log.d(TAG, "POS: left=" + pos[0] + " top=" + pos[1] +
                 " right=" + pos[2] + " bot=" + pos[3]);
 
-        x = pos[0]; // left
-        y = pos[1]; // top
-        w = 20;
-        h = 20;
-
 
         Log.d(TAG, "Service started!");
         wm = (WindowManager) getSystemService(WINDOW_SERVICE);
 
+        //TODO: I can click through it
         image = new ImageView(this);
         image.setImageResource(R.drawable.ic_launcher); //TODO: change this and remove the original one
 
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY,
+                WindowManager.LayoutParams.TYPE_PHONE,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-                PixelFormat.OPAQUE
+                PixelFormat.TRANSLUCENT
         );
 
-        params.x = x;
-        params.y = y;
+        //TODO: positioning is not right when the keybd is active
+        params.x = pos[0]; // left
+        params.y = pos[1]; // top
+        params.width = pos[2]- pos[0]; // right - left
+        params.height = pos[3] - pos[1]; // bottom - top
         params.gravity = Gravity.TOP | Gravity.LEFT;
-        params.height = h;
-        params.width = w;
 
+        Log.d(TAG, "x=" + params.x + " y= " + params.y + " w=" + params.width + " h=" + params.height);
+
+        image.setPadding(0, 0, 0, 0);
 
         wm.addView(image, params);
 
