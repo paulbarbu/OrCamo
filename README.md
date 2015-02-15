@@ -4,7 +4,7 @@ OrCamo
 
 Purpose: prevent me from accidentally touching the button when picking up the phone.
 
-**NOTE:** tested only on Samsung Galaxy SII Plus (I9105P) with TouchPal keyboard third party apps.
+**NOTE:** tested only on Samsung Galaxy SII Plus (I9105P) with TouchPal keyboard third party app (the positions reported by the `AccesibilityNodeInfo` are not correct when the keyboard is shown, so a workaroudn was necessary and if you use another keyboard, the numbers may not add up and the camouflage may be mispositioned).
 
 **Permission notes:**
 The app needs some special permissions since I have to know which window is currently active and I have to draw over other windows (for details please see the file `Androidmanifest.xml`).
