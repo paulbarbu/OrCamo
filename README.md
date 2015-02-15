@@ -9,6 +9,9 @@ Purpose: prevent me from accidentally touching the button when picking up the ph
 **Permission notes:**
 The app needs some special permissions since I have to know which window is currently active and I have to draw over other windows (for details please see the file `Androidmanifest.xml`).
 
+In order to use the app you have to activate the accessibility service:
+(On Android 4.2.2) Go to `Settings -> My Device -> Accessibility -> OrCamo (in the Services category)` and activate it.
+
 License (BSD 3)
 ===============
 
