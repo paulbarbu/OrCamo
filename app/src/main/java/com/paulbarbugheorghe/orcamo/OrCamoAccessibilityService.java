@@ -36,6 +36,12 @@ public class OrCamoAccessibilityService extends AccessibilityService {
 
         //TODO: recycle
 
+        if(null == src) {
+            Log.w(TAG, "src is null");
+            stopCamouflage();
+            return;
+        }
+
         List<AccessibilityNodeInfo> nodes = src.findAccessibilityNodeInfosByText(ELEM_DESC);
         Log.d(TAG, "Found (" + nodes.size() + "): " + nodes.toString());
 
@@ -87,7 +93,6 @@ public class OrCamoAccessibilityService extends AccessibilityService {
         Intent intent = new Intent(this, OrCamoService.class);
         intent.putExtra(EXTRA_POS, pos);
 
-        //TODO: position the overlay properly
         Log.d(TAG, "Starting window service");
         startService(intent);
         isCamouflageServiceRunning = true;

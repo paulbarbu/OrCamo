@@ -36,15 +36,16 @@ public class OrCamoService extends Service {
         image = new ImageView(this);
         image.setImageResource(R.drawable.ic_launcher); //TODO: change this and remove the original one
 
+        // TODO: TYPE_PHONE doesn't allow me to display the camouflage when the messenger is started via a chat head
+        // TODO: TYPE_SYSTEM_OVERLAY allows the click to go to the like btn
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY, //TYPE_PHONE doesn't allow me to display the camouflage when the messenger is started via a chat head
+                WindowManager.LayoutParams.TYPE_PHONE,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.TRANSLUCENT
         );
 
-        //TODO: positioning is not right when the keybd is active
         params.x = pos[0]; // left
         params.y = pos[1]; // top
         params.width = pos[2]- pos[0]; // right - left
@@ -52,6 +53,13 @@ public class OrCamoService extends Service {
         params.gravity = Gravity.TOP | Gravity.LEFT;
 
         Log.d(TAG, "x=" + params.x + " y= " + params.y + " w=" + params.width + " h=" + params.height);
+
+        // positioning is not right when the keybd is active
+        //FIXME: screen sizes are different!
+        if(params.y < 700)
+        {
+            params.y -= 37;
+        }
 
         wm.addView(image, params);
 
