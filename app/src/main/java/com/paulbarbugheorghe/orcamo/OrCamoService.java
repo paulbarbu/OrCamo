@@ -39,7 +39,7 @@ public class OrCamoService extends Service {
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.TYPE_PHONE,
+                WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY, //TYPE_PHONE doesn't allow me to display the camouflage when the messenger is started via a chat head
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.TRANSLUCENT
         );
