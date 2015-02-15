@@ -34,16 +34,10 @@ public class OrCamoService extends Service {
         image = new ImageView(this);
         image.setImageResource(R.drawable.ic_launcher); //TODO: change this and remove the original one
 
-        /*
-         TODO: TYPE_PHONE doesn't allow me to display the camouflage when the messenger is started via a chat head
-         TYPE_SYSTEM_OVERLAY allows the click to go to the like btn - maybe I can fix this
-          OR
-         maybe I can use the winid, when it changes, restart the service!
-         */
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.TYPE_PHONE,
+                WindowManager.LayoutParams.TYPE_PRIORITY_PHONE,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.TRANSLUCENT
         );
