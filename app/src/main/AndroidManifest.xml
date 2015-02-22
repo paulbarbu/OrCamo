@@ -18,6 +18,11 @@
             android:exported="false" >
         </service>
 
+        <service
+            android:name=".OrCamoNotificationService"
+            android:exported="false" >
+        </service>
+
         <service android:name=".OrCamoAccessibilityService"
             android:label="@string/orcamoaccessibilityservice_name"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">

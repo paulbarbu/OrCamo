@@ -10,11 +10,11 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageView;
 
-public class OrCamoService extends Service {
-    private static final String TAG = "OrCamoService";
+public class OrCamoNotificationService extends Service {
+    private static final String TAG = "OrCamoNotificationService";
 
     private WindowManager wm;
-    private ImageView camo;
+    private ImageView notificationCamo;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -34,8 +34,8 @@ public class OrCamoService extends Service {
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.TYPE_PRIORITY_PHONE,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+                WindowManager.LayoutParams.TYPE_SYSTEM_ERROR,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
                 PixelFormat.TRANSLUCENT
         );
 
@@ -47,10 +47,13 @@ public class OrCamoService extends Service {
 
         Log.d(TAG, "x=" + params.x + " y= " + params.y + " w=" + params.width + " h=" + params.height);
 
-        camo = new ImageView(this);
-        camo.setImageResource(R.drawable.ic_launcher); //TODO: change this and remove the original one
+        // only if I'm in the messenger application I need to account for the keyboard
 
-        wm.addView(camo, params);
+        notificationCamo = new ImageView(this);
+        notificationCamo.setImageResource(R.drawable.ic_launcher); //TODO: change this and remove the original one
+        notificationCamo.setScaleType(ImageView.ScaleType.FIT_XY);
+
+        wm.addView(notificationCamo, params);
 
         return super.onStartCommand(intent, flags, startId);
     }
@@ -59,9 +62,10 @@ public class OrCamoService extends Service {
     public void onDestroy()
     {
         super.onDestroy();
-        if(camo != null)
+
+        if(notificationCamo != null)
         {
-            wm.removeView(camo);
+            wm.removeView(notificationCamo);
         }
 
         Log.d(TAG, "Service destroyed!");
